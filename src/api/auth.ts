@@ -1,12 +1,14 @@
-import type { BladeTokenResponse, LoginParams } from '@/types/auth'
+import type { BladeTokenResponse, LoginParams, RefreshTokenParams } from '@/types/auth'
+import axios from 'axios'
 import { md5 } from 'js-md5'
 import { z } from 'zod'
-import { request } from '@/utils/request'
+import { runtimeConfig } from '@/app/runtimeConfig'
 import { parseWithSchema } from '@/utils/validation'
 
-const BLADE_TENANT_ID = '000000'
-const BLADE_CLIENT_ID = 'saber'
-const BLADE_CLIENT_SECRET = 'saber_secret'
+const bladeAuthRequest = axios.create({
+  baseURL: runtimeConfig.apiBaseURL,
+  timeout: runtimeConfig.requestTimeoutMs,
+})
 
 const bladeTokenSchema = z.object({
   access_token: z.string().min(1),
@@ -20,7 +22,7 @@ const bladeTokenSchema = z.object({
 })
 
 function buildBladeBasicAuthHeader(): string {
-  return `Basic ${btoa(`${BLADE_CLIENT_ID}:${BLADE_CLIENT_SECRET}`)}`
+  return `Basic ${btoa(`${runtimeConfig.bladeClientId}:${runtimeConfig.bladeClientSecret}`)}`
 }
 
 function buildLoginParams(username: string, password: string): LoginParams {
@@ -28,19 +30,27 @@ function buildLoginParams(username: string, password: string): LoginParams {
     username,
     password: md5(password),
     code: '',
-    tenantId: BLADE_TENANT_ID,
+    tenantId: runtimeConfig.bladeTenantId,
     grant_type: 'password',
     scope: 'all',
     type: 'account',
   }
 }
 
-/** 调用 Blade 登录接口并校验令牌响应。 */
-export async function loginApi(username: string, password: string): Promise<BladeTokenResponse> {
-  const response = await request.post('/api/blade-auth/oauth/token', null, {
-    params: buildLoginParams(username, password),
+function buildRefreshTokenParams(refreshToken: string): RefreshTokenParams {
+  return {
+    refresh_token: refreshToken,
+    grant_type: 'refresh_token',
+    scope: 'all',
+    tenantId: runtimeConfig.bladeTenantId,
+  }
+}
+
+async function requestBladeToken(params: LoginParams | RefreshTokenParams): Promise<BladeTokenResponse> {
+  const response = await bladeAuthRequest.post('/api/blade-auth/oauth/token', null, {
+    params,
     headers: {
-      'Tenant-Id': BLADE_TENANT_ID,
+      'Tenant-Id': runtimeConfig.bladeTenantId,
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': buildBladeBasicAuthHeader(),
       'Captcha-Code': '',
@@ -49,4 +59,14 @@ export async function loginApi(username: string, password: string): Promise<Blad
   })
 
   return parseWithSchema(bladeTokenSchema, response.data)
+}
+
+/** 调用 Blade 登录接口并校验令牌响应。 */
+export async function loginApi(username: string, password: string): Promise<BladeTokenResponse> {
+  return requestBladeToken(buildLoginParams(username, password))
+}
+
+/** 使用刷新令牌换取新的 Blade 令牌。 */
+export async function refreshLoginApi(refreshToken: string): Promise<BladeTokenResponse> {
+  return requestBladeToken(buildRefreshTokenParams(refreshToken))
 }

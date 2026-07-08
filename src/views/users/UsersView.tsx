@@ -1,55 +1,31 @@
-﻿import type { CreateUserParams, UpdateUserParams, UserListQuery, UserModel, UserStatus } from '@/types/user'
+import type { UserModel, UserStatus } from '@/types/user'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, message } from 'antd'
 import { useState } from 'react'
 import { createUser, deleteUser, getUsers, updateUser } from '@/api/users'
+import {
+  DEFAULT_USER_QUERY,
+  USER_QUERY_KEY,
+  USER_STATUS_FILTER_OPTIONS,
+  USER_STATUS_OPTIONS,
+  type UserFormValues,
+  buildUsersQueryKey,
+  toCreateUserParams,
+  toUpdateUserParams,
+  toUserFormValues,
+} from '@/views/users/userManagement'
 import './UsersView.css'
 
-interface UserFormValues {
-  username: string
-  nickname: string
-  realName: string
-  phone: string
-  email: string
-  department: string
-  roleNames: string
-  status: UserStatus
-}
-
-function toFormValues(user?: UserModel): Partial<UserFormValues> {
-  if (!user) {
-    return { status: 'enabled' }
-  }
-
-  return {
-    ...user,
-    roleNames: user.roleNames.join('、'),
-  }
-}
-
-function toCreateParams(values: UserFormValues): CreateUserParams {
-  return {
-    username: values.username,
-    nickname: values.nickname,
-    realName: values.realName,
-    phone: values.phone,
-    email: values.email,
-    department: values.department,
-    roleNames: values.roleNames.split(/[、,，]/).map(item => item.trim()).filter(Boolean),
-    status: values.status,
-  }
-}
-
 export function UsersView() {
-  const [query, setQuery] = useState<UserListQuery>({ status: 'all' })
+  const [query, setQuery] = useState(DEFAULT_USER_QUERY)
   const [editingUser, setEditingUser] = useState<UserModel | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [form] = Form.useForm<UserFormValues>()
   const queryClient = useQueryClient()
 
   const usersQuery = useQuery({
-    queryKey: ['users', query],
+    queryKey: buildUsersQueryKey(query),
     queryFn: () => getUsers(query),
   })
 
@@ -58,7 +34,7 @@ export function UsersView() {
     onSuccess: () => {
       void message.success('用户新增成功')
       setModalOpen(false)
-      void queryClient.invalidateQueries({ queryKey: ['users'] })
+      void queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY })
     },
   })
 
@@ -68,7 +44,7 @@ export function UsersView() {
       void message.success('用户更新成功')
       setModalOpen(false)
       setEditingUser(null)
-      void queryClient.invalidateQueries({ queryKey: ['users'] })
+      void queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY })
     },
   })
 
@@ -76,7 +52,7 @@ export function UsersView() {
     mutationFn: deleteUser,
     onSuccess: () => {
       void message.success('用户删除成功')
-      void queryClient.invalidateQueries({ queryKey: ['users'] })
+      void queryClient.invalidateQueries({ queryKey: USER_QUERY_KEY })
     },
   })
 
@@ -116,49 +92,44 @@ export function UsersView() {
 
   function handleCreate() {
     setEditingUser(null)
-    form.setFieldsValue(toFormValues())
+    form.setFieldsValue(toUserFormValues())
     setModalOpen(true)
   }
 
   function handleEdit(user: UserModel) {
     setEditingUser(user)
-    form.setFieldsValue(toFormValues(user))
+    form.setFieldsValue(toUserFormValues(user))
     setModalOpen(true)
   }
 
   async function handleSubmit() {
     const values = await form.validateFields()
-    const params = toCreateParams(values)
 
     if (editingUser) {
-      updateMutation.mutate({ id: editingUser.id, ...params } satisfies UpdateUserParams)
+      updateMutation.mutate(toUpdateUserParams(editingUser.id, values))
       return
     }
 
-    createMutation.mutate(params)
+    createMutation.mutate(toCreateUserParams(values))
   }
 
   return (
     <main className="users-view">
       <Card className="users-view__toolbar">
-        <Form layout="inline" onFinish={values => setQuery(values)} initialValues={{ status: 'all' }}>
+        <Form layout="inline" onFinish={values => setQuery(values)} initialValues={DEFAULT_USER_QUERY}>
           <Form.Item name="keyword" label="关键词">
             <Input allowClear placeholder="账号、姓名或手机号" />
           </Form.Item>
           <Form.Item name="status" label="状态">
             <Select
               style={{ width: 130 }}
-              options={[
-                { label: '全部', value: 'all' },
-                { label: '启用', value: 'enabled' },
-                { label: '停用', value: 'disabled' },
-              ]}
+              options={[...USER_STATUS_FILTER_OPTIONS]}
             />
           </Form.Item>
           <Form.Item>
             <Space>
               <Button htmlType="submit" type="primary">查询</Button>
-              <Button icon={<ReloadOutlined />} onClick={() => setQuery({ status: 'all' })}>重置</Button>
+              <Button icon={<ReloadOutlined />} onClick={() => setQuery(DEFAULT_USER_QUERY)}>重置</Button>
             </Space>
           </Form.Item>
         </Form>
@@ -205,11 +176,10 @@ export function UsersView() {
             <Input placeholder="多个角色可用顿号分隔" />
           </Form.Item>
           <Form.Item name="status" label="状态" rules={[{ required: true, message: '请选择状态' }]}>
-            <Select options={[{ label: '启用', value: 'enabled' }, { label: '停用', value: 'disabled' }]} />
+            <Select options={[...USER_STATUS_OPTIONS]} />
           </Form.Item>
         </Form>
       </Modal>
     </main>
   )
 }
-

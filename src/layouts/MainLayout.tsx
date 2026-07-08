@@ -1,68 +1,45 @@
-﻿import type { MenuProps } from 'antd'
 import {
   CloseOutlined,
   DownOutlined,
   FullscreenOutlined,
-  HomeOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  TeamOutlined,
 } from '@ant-design/icons'
 import { Avatar, Button, Dropdown, Layout, Menu, Tooltip, Typography } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { logout } from '@/api/session'
+import {
+  HOME_PATH,
+  closeWorkspaceTab,
+  getOpenedWorkspaceTabs,
+  getWorkspaceMenuItems,
+  getWorkspacePageTitle,
+  openWorkspacePath,
+} from '@/layouts/workspaceNavigation'
 import './MainLayout.css'
 
 const { Header, Sider, Content } = Layout
-const HOME_PATH = '/home'
-
-const navigationItems = [
-  { key: HOME_PATH, icon: <HomeOutlined />, label: '首页' },
-  { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
-]
-
-const menuItems: MenuProps['items'] = navigationItems
-const pageTitleMap = new Map(navigationItems.map(item => [item.key, item.label]))
+const menuItems = getWorkspaceMenuItems()
 
 interface MainLayoutProps {
   collapsed: boolean
   onToggleCollapsed: () => void
 }
 
-function getPageTitle(pathname: string): string {
-  return pageTitleMap.get(pathname) || '首页'
-}
-
-function isKnownPage(pathname: string): boolean {
-  return pageTitleMap.has(pathname)
-}
-
 export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const [openedPaths, setOpenedPaths] = useState<string[]>([HOME_PATH])
-  const pageTitle = getPageTitle(location.pathname)
+  const pageTitle = getWorkspacePageTitle(location.pathname)
 
   const openedTabs = useMemo(
-    () => openedPaths.map(path => ({ path, title: getPageTitle(path) })),
+    () => getOpenedWorkspaceTabs(openedPaths),
     [openedPaths],
   )
 
   useEffect(() => {
-    if (!isKnownPage(location.pathname)) {
-      return
-    }
-
-    setOpenedPaths((paths) => {
-      const nextPaths = paths.includes(HOME_PATH) ? [...paths] : [HOME_PATH, ...paths]
-
-      if (!nextPaths.includes(location.pathname)) {
-        nextPaths.push(location.pathname)
-      }
-
-      return nextPaths
-    })
+    setOpenedPaths(paths => openWorkspacePath(paths, location.pathname))
   }, [location.pathname])
 
   function handleLogout() {
@@ -84,18 +61,11 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
   }
 
   function closeTab(path: string) {
-    if (path === HOME_PATH) {
-      return
-    }
+    const result = closeWorkspaceTab(openedPaths, location.pathname, path)
+    setOpenedPaths(result.openedPaths)
 
-    const closingIndex = openedPaths.findIndex(item => item === path)
-    const fallbackPath = openedPaths[closingIndex - 1] || HOME_PATH
-    const nextPaths = openedPaths.filter(item => item !== path)
-
-    setOpenedPaths(nextPaths.includes(HOME_PATH) ? nextPaths : [HOME_PATH, ...nextPaths])
-
-    if (location.pathname === path) {
-      navigate(fallbackPath, { replace: true })
+    if (result.nextPath !== location.pathname) {
+      navigate(result.nextPath, { replace: true })
     }
   }
 
@@ -163,7 +133,6 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
         <nav className="main-layout__tabs" aria-label="页面标签">
           {openedTabs.map(tab => {
             const active = tab.path === location.pathname
-            const closable = tab.path !== HOME_PATH
 
             return (
               <div
@@ -178,7 +147,7 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
                   {active && <span className="main-layout__tab-dot" aria-hidden="true" />}
                   {tab.title}
                 </button>
-                {closable && (
+                {tab.closable && (
                   <button
                     aria-label={`关闭${tab.title}标签`}
                     className="main-layout__tab-close"

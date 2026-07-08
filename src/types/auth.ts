@@ -8,6 +8,13 @@ export interface LoginParams {
   type: 'account'
 }
 
+export interface RefreshTokenParams {
+  refresh_token: string
+  grant_type: 'refresh_token'
+  scope: 'all'
+  tenantId: string
+}
+
 export interface BladeTokenResponse {
   access_token: string
   refresh_token: string
