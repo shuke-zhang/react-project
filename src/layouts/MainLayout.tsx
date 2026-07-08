@@ -1,35 +1,108 @@
-import type { MenuProps } from 'antd'
-import { HomeOutlined, MenuFoldOutlined, MenuUnfoldOutlined, TeamOutlined } from '@ant-design/icons'
-import { Avatar, Button, Dropdown, Layout, Menu, Space, Typography } from 'antd'
+﻿import type { MenuProps } from 'antd'
+import {
+  CloseOutlined,
+  DownOutlined,
+  FullscreenOutlined,
+  HomeOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  TeamOutlined,
+} from '@ant-design/icons'
+import { Avatar, Button, Dropdown, Layout, Menu, Tooltip, Typography } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
 import { logout } from '@/api/session'
 import './MainLayout.css'
 
 const { Header, Sider, Content } = Layout
+const HOME_PATH = '/home'
 
-const menuItems: MenuProps['items'] = [
-  { key: '/home', icon: <HomeOutlined />, label: '工作台首页' },
+const navigationItems = [
+  { key: HOME_PATH, icon: <HomeOutlined />, label: '首页' },
   { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
 ]
+
+const menuItems: MenuProps['items'] = navigationItems
+const pageTitleMap = new Map(navigationItems.map(item => [item.key, item.label]))
 
 interface MainLayoutProps {
   collapsed: boolean
   onToggleCollapsed: () => void
 }
 
+function getPageTitle(pathname: string): string {
+  return pageTitleMap.get(pathname) || '首页'
+}
+
+function isKnownPage(pathname: string): boolean {
+  return pageTitleMap.has(pathname)
+}
+
 export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const [openedPaths, setOpenedPaths] = useState<string[]>([HOME_PATH])
+  const pageTitle = getPageTitle(location.pathname)
+
+  const openedTabs = useMemo(
+    () => openedPaths.map(path => ({ path, title: getPageTitle(path) })),
+    [openedPaths],
+  )
+
+  useEffect(() => {
+    if (!isKnownPage(location.pathname)) {
+      return
+    }
+
+    setOpenedPaths((paths) => {
+      const nextPaths = paths.includes(HOME_PATH) ? [...paths] : [HOME_PATH, ...paths]
+
+      if (!nextPaths.includes(location.pathname)) {
+        nextPaths.push(location.pathname)
+      }
+
+      return nextPaths
+    })
+  }, [location.pathname])
 
   function handleLogout() {
     logout()
     navigate('/login', { replace: true })
   }
 
+  async function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen()
+      return
+    }
+
+    await document.documentElement.requestFullscreen()
+  }
+
+  function handleTabClick(path: string) {
+    navigate(path)
+  }
+
+  function closeTab(path: string) {
+    if (path === HOME_PATH) {
+      return
+    }
+
+    const closingIndex = openedPaths.findIndex(item => item === path)
+    const fallbackPath = openedPaths[closingIndex - 1] || HOME_PATH
+    const nextPaths = openedPaths.filter(item => item !== path)
+
+    setOpenedPaths(nextPaths.includes(HOME_PATH) ? nextPaths : [HOME_PATH, ...nextPaths])
+
+    if (location.pathname === path) {
+      navigate(fallbackPath, { replace: true })
+    }
+  }
+
   return (
     <Layout className="main-layout">
       <Sider className="main-layout__sider" collapsed={collapsed} width={222} collapsedWidth={76}>
-        <button className="main-layout__brand" type="button" onClick={() => navigate('/home')}>
+        <button className="main-layout__brand" type="button" onClick={() => navigate(HOME_PATH)}>
           <span className="main-layout__brand-mark">+</span>
           {!collapsed && (
             <span className="main-layout__brand-copy">
@@ -49,27 +122,76 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
       </Sider>
       <Layout className="main-layout__workspace">
         <Header className="main-layout__header">
-          <Space>
+          <div className="main-layout__heading">
             <Button
               aria-label="展开或收起侧边栏"
+              className="main-layout__menu-toggle"
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={onToggleCollapsed}
             />
-            <Typography.Text className="main-layout__title">企业级 React 项目模板</Typography.Text>
-          </Space>
-          <Dropdown
-            menu={{
-              items: [{ key: 'logout', label: '退出登录' }],
-              onClick: handleLogout,
-            }}
-          >
-            <Button className="main-layout__account" type="text">
-              <Avatar style={{ background: '#35bda7' }}>管</Avatar>
-              <span>管理员</span>
-            </Button>
-          </Dropdown>
+            <Typography.Text className="main-layout__title">{pageTitle}</Typography.Text>
+          </div>
+          <div className="main-layout__actions">
+            <Tooltip title="切换全屏">
+              <Button
+                aria-label="切换全屏"
+                className="main-layout__icon-button"
+                type="text"
+                icon={<FullscreenOutlined />}
+                onClick={() => void toggleFullscreen()}
+              />
+            </Tooltip>
+            <Dropdown
+              trigger={['click']}
+              menu={{
+                items: [{ key: 'logout', label: '退出登录' }],
+                onClick: handleLogout,
+              }}
+            >
+              <Button className="main-layout__account" type="text">
+                <Avatar className="main-layout__avatar">管</Avatar>
+                <span className="main-layout__account-copy">
+                  <strong>管理员</strong>
+                  <small>已登录工作台</small>
+                </span>
+                <DownOutlined className="main-layout__account-arrow" />
+              </Button>
+            </Dropdown>
+          </div>
         </Header>
+        <nav className="main-layout__tabs" aria-label="页面标签">
+          {openedTabs.map(tab => {
+            const active = tab.path === location.pathname
+            const closable = tab.path !== HOME_PATH
+
+            return (
+              <div
+                className={active ? 'main-layout__tab main-layout__tab--active' : 'main-layout__tab'}
+                key={tab.path}
+              >
+                <button
+                  className="main-layout__tab-link"
+                  type="button"
+                  onClick={() => handleTabClick(tab.path)}
+                >
+                  {active && <span className="main-layout__tab-dot" aria-hidden="true" />}
+                  {tab.title}
+                </button>
+                {closable && (
+                  <button
+                    aria-label={`关闭${tab.title}标签`}
+                    className="main-layout__tab-close"
+                    type="button"
+                    onClick={() => closeTab(tab.path)}
+                  >
+                    <CloseOutlined />
+                  </button>
+                )}
+              </div>
+            )
+          })}
+        </nav>
         <Content className="main-layout__content">
           <Outlet />
         </Content>
