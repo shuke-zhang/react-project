@@ -1,6 +1,6 @@
 import type { LazyExoticComponent, ReactNode } from 'react'
 import { lazy } from 'react'
-import { HomeOutlined, TeamOutlined } from '@ant-design/icons'
+import { BookOutlined, HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons'
 import type { RouteObject } from 'react-router-dom'
 
 /**
@@ -9,9 +9,14 @@ import type { RouteObject } from 'react-router-dom'
 export const HOME_PATH = '/home'
 
 /**
+ * 系统字典管理路径。
+ */
+export const SYSTEM_DICT_PATH = '/system/dict'
+
+/**
  * 工作台页面的稳定业务标识。
  */
-export type WorkspacePageKey = 'home' | 'users'
+export type WorkspacePageKey = 'home' | 'users' | 'systemDict'
 
 /**
  * 工作台页面注册项。
@@ -20,9 +25,26 @@ export interface WorkspacePage {
   key: WorkspacePageKey
   path: string
   title: string
+  loadView?: () => LazyExoticComponent<() => ReactNode>
+}
+
+/**
+ * 工作台菜单叶子节点。
+ */
+export interface WorkspaceMenuPageItem {
+  key: string
   icon: ReactNode
-  visibleInMenu: boolean
-  loadView: () => LazyExoticComponent<() => ReactNode>
+  pageKey: WorkspacePageKey
+}
+
+/**
+ * 工作台菜单分组节点。
+ */
+export interface WorkspaceMenuGroupItem {
+  key: string
+  icon: ReactNode
+  title: string
+  children: WorkspaceMenuPageItem[]
 }
 
 /**
@@ -50,21 +72,69 @@ export const WORKSPACE_PAGES: WorkspacePage[] = [
     key: 'home',
     path: HOME_PATH,
     title: '首页',
-    icon: <HomeOutlined />,
-    visibleInMenu: true,
     loadView: () => lazy(() => import('@/views/home/HomeView').then(module => ({ default: module.HomeView }))),
   },
   {
     key: 'users',
     path: '/users',
     title: '用户管理',
-    icon: <TeamOutlined />,
-    visibleInMenu: true,
     loadView: () => lazy(() => import('@/views/users/UsersView').then(module => ({ default: module.UsersView }))),
+  },
+  {
+    key: 'systemDict',
+    path: SYSTEM_DICT_PATH,
+    title: '字典管理',
+    loadView: () => lazy(() => import('@/views/system/dict/index').then(module => ({ default: module.SystemDictView }))),
   },
 ]
 
+/**
+ * 工作台侧边菜单注册表，集中维护顶级菜单和分组关系。
+ */
+export const WORKSPACE_MENU: Array<WorkspaceMenuPageItem | WorkspaceMenuGroupItem> = [
+  {
+    key: 'menu-home',
+    icon: <HomeOutlined />,
+    pageKey: 'home',
+  },
+  {
+    key: 'menu-users',
+    icon: <TeamOutlined />,
+    pageKey: 'users',
+  },
+  {
+    key: 'system-management',
+    icon: <SettingOutlined />,
+    title: '系统管理',
+    children: [
+      {
+        key: 'menu-system-dict',
+        icon: <BookOutlined />,
+        pageKey: 'systemDict',
+      },
+    ],
+  },
+]
+
+const pageMap = new Map(WORKSPACE_PAGES.map(page => [page.key, page]))
 const pageTitleMap = new Map(WORKSPACE_PAGES.map(page => [page.path, page.title]))
+
+/**
+ * 根据业务标识读取工作台页面注册项。
+ *
+ * @param pageKey 工作台页面的稳定业务标识。
+ * @returns 已注册的工作台页面。
+ * @throws 当菜单引用了未注册页面时抛出错误。
+ */
+function getWorkspacePageByKey(pageKey: WorkspacePageKey): WorkspacePage {
+  const page = pageMap.get(pageKey)
+
+  if (!page) {
+    throw new Error(`未找到工作台页面注册项：${pageKey}`)
+  }
+
+  return page
+}
 
 /**
  * 根据路径读取工作台页面标题。
@@ -92,13 +162,32 @@ export function isKnownWorkspacePage(pathname: string): boolean {
  * @returns 可直接传给 Ant Design Menu 的菜单项数组。
  */
 export function getWorkspaceMenuItems() {
-  return WORKSPACE_PAGES
-    .filter(page => page.visibleInMenu)
-    .map(page => ({
+  return WORKSPACE_MENU.map((item) => {
+    if ('children' in item) {
+      return {
+        key: item.key,
+        icon: item.icon,
+        label: item.title,
+        children: item.children.map((child) => {
+          const page = getWorkspacePageByKey(child.pageKey)
+
+          return {
+            key: page.path,
+            icon: child.icon,
+            label: page.title,
+          }
+        }),
+      }
+    }
+
+    const page = getWorkspacePageByKey(item.pageKey)
+
+    return {
       key: page.path,
-      icon: page.icon,
+      icon: item.icon,
       label: page.title,
-    }))
+    }
+  })
 }
 
 /**
@@ -109,8 +198,16 @@ export function getWorkspaceMenuItems() {
  */
 export function getWorkspaceRouteObjects(renderWithSuspense: (node: ReactNode) => ReactNode): RouteObject[] {
   return WORKSPACE_PAGES.map((page) => {
-    const View = page.loadView()
     const path = page.path.startsWith('/') ? page.path.slice(1) : page.path
+
+    if (!page.loadView) {
+      return {
+        path,
+        element: null,
+      }
+    }
+
+    const View = page.loadView()
 
     return {
       path,

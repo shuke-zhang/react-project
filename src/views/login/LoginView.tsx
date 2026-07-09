@@ -21,9 +21,9 @@ function getRedirectPath(state: unknown): string {
 }
 
 /**
- * 登录页面。
+ * 渲染具备亮色绿蓝玻璃拟态质感的工作台登录页。
  *
- * @returns 登录表单和产品说明区域。
+ * @returns 登录表单和纯视觉玻璃背景组成的页面节点。
  */
 export function LoginView() {
   const [loading, setLoading] = useState(false)
@@ -53,30 +53,50 @@ export function LoginView() {
 
   return (
     <main className="login-page">
-      <div className="login-page__grid" aria-hidden="true" />
-      <div className="login-page__brand">
-        <span className="login-page__brand-mark">+</span>
-        <span>
-          <strong>企业级 React 模板</strong>
-          <small>ENTERPRISE TEMPLATE</small>
-        </span>
+      <div className="login-page__ambient" aria-hidden="true" />
+      <div className="login-page__glass-ribbon" aria-hidden="true" />
+      <div className="login-page__liquid-field" aria-hidden="true">
+        <span />
+        <span />
+        <span />
       </div>
-      <section className="login-page__layout">
-        <div className="login-page__intro">
-          <span>ENTERPRISE WORKSPACE</span>
-          <h1>专业后台工作台</h1>
-          <p>登录后进入企业级 React 项目模板，体验真实认证、路由守卫、请求封装和用户 CRUD 示例。</p>
-          <ul>
-            <li><span>01</span> 真实 Blade 登录接口</li>
-            <li><span>02</span> React Router 登录守卫</li>
-            <li><span>03</span> TanStack Query 数据管理</li>
-          </ul>
+
+      <header className="login-page__brand" aria-label="企业级 React 模板">
+        <span className="login-page__brand-mark" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </span>
+      </header>
+
+      <section className="login-page__layout" aria-label="工作台登录">
+        <div className="login-page__visual" aria-hidden="true">
+          <span className="login-page__visual-pane login-page__visual-pane--large" />
+          <span className="login-page__visual-pane login-page__visual-pane--small" />
+          <span className="login-page__visual-panel">
+            <span />
+            <span />
+            <span />
+          </span>
+          <span className="login-page__visual-ring" />
+          <span className="login-page__visual-orbit login-page__visual-orbit--blue" />
+          <span className="login-page__visual-orbit login-page__visual-orbit--green" />
+          <span className="login-page__visual-liquid login-page__visual-liquid--mint" />
+          <span className="login-page__visual-liquid login-page__visual-liquid--cyan" />
         </div>
-        <div className="login-page__panel">
-          <div className="login-page__heading">
-            <Typography.Title level={3}>工作台登录</Typography.Title>
-            <Typography.Text type="secondary">请使用已配置账号登录</Typography.Text>
+
+        <section className="login-page__panel" aria-labelledby="login-title">
+          <div className="login-page__panel-shine" aria-hidden="true" />
+          <div className="login-page__panel-liquid" aria-hidden="true">
+            <span />
+            <span />
           </div>
+          <div className="login-page__heading">
+            <span>SECURE ACCESS</span>
+            <Typography.Title id="login-title" level={2}>欢迎回来</Typography.Title>
+            <Typography.Text>使用已配置账号登录企业控制台。</Typography.Text>
+          </div>
+
           <Form<LoginFormValues>
             layout="vertical"
             initialValues={{ username: 'shuke', password: 'zhang123456' }}
@@ -89,10 +109,10 @@ export function LoginView() {
               <Input.Password autoComplete="current-password" placeholder="请输入密码" size="large" />
             </Form.Item>
             <Button block htmlType="submit" loading={loading} size="large" type="primary">
-              {loading ? '正在登录...' : '登录'}
+              {loading ? '正在登录...' : '登录工作台'}
             </Button>
           </Form>
-        </div>
+        </section>
       </section>
     </main>
   )

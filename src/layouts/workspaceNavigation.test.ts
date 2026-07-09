@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   HOME_PATH,
+  SYSTEM_DICT_PATH,
   closeWorkspaceTab,
   getOpenedWorkspaceTabs,
   getWorkspaceMenuItems,
@@ -12,11 +13,13 @@ import {
 describe('工作台导航 module', () => {
   it('根据路径读取页面标题', () => {
     expect(getWorkspacePageTitle('/users')).toBe('用户管理')
+    expect(getWorkspacePageTitle(SYSTEM_DICT_PATH)).toBe('字典管理')
     expect(getWorkspacePageTitle('/unknown')).toBe('首页')
   })
 
   it('打开已知页面时保留首页并追加标签', () => {
     expect(openWorkspacePath([HOME_PATH], '/users')).toEqual([HOME_PATH, '/users'])
+    expect(openWorkspacePath([HOME_PATH], SYSTEM_DICT_PATH)).toEqual([HOME_PATH, SYSTEM_DICT_PATH])
   })
 
   it('忽略未知页面', () => {
@@ -24,9 +27,10 @@ describe('工作台导航 module', () => {
   })
 
   it('生成带关闭规则的标签页', () => {
-    expect(getOpenedWorkspaceTabs([HOME_PATH, '/users'])).toEqual([
+    expect(getOpenedWorkspaceTabs([HOME_PATH, '/users', SYSTEM_DICT_PATH])).toEqual([
       { path: HOME_PATH, title: '首页', closable: false },
       { path: '/users', title: '用户管理', closable: true },
+      { path: SYSTEM_DICT_PATH, title: '字典管理', closable: true },
     ])
   })
 
@@ -34,8 +38,18 @@ describe('工作台导航 module', () => {
     const menuItems = getWorkspaceMenuItems()
     const routes = getWorkspaceRouteObjects(node => node)
 
-    expect(menuItems.map(item => item?.key)).toEqual([HOME_PATH, '/users'])
-    expect(routes.map(route => route.path)).toEqual(['home', 'users'])
+    expect(menuItems.map(item => item?.key)).toEqual([HOME_PATH, '/users', 'system-management'])
+    expect(menuItems[2]).toMatchObject({
+      key: 'system-management',
+      label: '系统管理',
+      children: [
+        {
+          key: SYSTEM_DICT_PATH,
+          label: '字典管理',
+        },
+      ],
+    })
+    expect(routes.map(route => route.path)).toEqual(['home', 'users', 'system/dict'])
   })
 
   it('关闭当前标签时回退到前一个标签', () => {

@@ -105,6 +105,7 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
         </button>
         <Menu
           className="main-layout__menu"
+          defaultOpenKeys={['system-management']}
           mode="inline"
           theme="dark"
           items={menuItems}
