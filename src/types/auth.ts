@@ -1,3 +1,6 @@
+/**
+ * Blade 密码模式登录参数。
+ */
 export interface LoginParams {
   username: string
   password: string
@@ -8,6 +11,9 @@ export interface LoginParams {
   type: 'account'
 }
 
+/**
+ * Blade 刷新令牌模式参数。
+ */
 export interface RefreshTokenParams {
   refresh_token: string
   grant_type: 'refresh_token'
@@ -15,6 +21,9 @@ export interface RefreshTokenParams {
   tenantId: string
 }
 
+/**
+ * Blade OAuth 令牌响应。
+ */
 export interface BladeTokenResponse {
   access_token: string
   refresh_token: string

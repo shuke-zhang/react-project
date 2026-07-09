@@ -17,6 +17,11 @@ import {
 } from '@/views/users/userManagement'
 import './UsersView.css'
 
+/**
+ * 用户管理页面。
+ *
+ * @returns 用户查询、列表、新增、编辑和删除的管理页面节点。
+ */
 export function UsersView() {
   const [query, setQuery] = useState(DEFAULT_USER_QUERY)
   const [editingUser, setEditingUser] = useState<UserModel | null>(null)
@@ -90,18 +95,29 @@ export function UsersView() {
     },
   ]
 
+  /** 打开新增用户弹窗并初始化表单默认值。 */
   function handleCreate() {
     setEditingUser(null)
     form.setFieldsValue(toUserFormValues())
     setModalOpen(true)
   }
 
+  /**
+   * 打开编辑用户弹窗并回填用户数据。
+   *
+   * @param user 需要编辑的用户。
+   */
   function handleEdit(user: UserModel) {
     setEditingUser(user)
     form.setFieldsValue(toUserFormValues(user))
     setModalOpen(true)
   }
 
+  /**
+   * 提交用户表单，并根据当前弹窗状态创建或更新用户。
+   *
+   * @throws 当表单校验失败时抛出 Ant Design 表单校验错误。
+   */
   async function handleSubmit() {
     const values = await form.validateFields()
 

@@ -13,22 +13,38 @@ import {
 const LOGIN_SESSION_EXPIRED_EVENT = 'auth:expired'
 const DEFAULT_EXPIRED_MESSAGE = '登录会话已过期，请重新登录'
 
+/**
+ * 登录会话过期事件详情。
+ */
 export interface LoginSessionExpiredDetail {
   message: string
 }
 
 let refreshLoginSessionPromise: Promise<BladeTokenResponse> | null = null
 
-/** 读取当前登录会话中的访问令牌。 */
+/**
+ * 读取当前登录会话中的访问令牌。
+ *
+ * @returns 当前缓存的访问令牌；不存在时返回 `null`。
+ */
 export function getLoginSessionAccessToken(): string | null {
   return getCacheToken()
 }
 
-/** 判断当前是否存在可用的登录会话。 */
+/**
+ * 判断当前是否存在可用的登录会话。
+ *
+ * @returns 存在访问令牌时返回 `true`。
+ */
 export function isAuthenticated(): boolean {
   return Boolean(getCacheToken())
 }
 
+/**
+ * 持久化登录会话中的 Blade 令牌。
+ *
+ * @param data Blade 令牌响应。
+ */
 function persistLoginSession(data: BladeTokenResponse): void {
   setCacheToken(data.access_token)
   setCacheRefreshToken(data.refresh_token)
@@ -36,14 +52,26 @@ function persistLoginSession(data: BladeTokenResponse): void {
   setCache('IS_LOGGED_IN', true)
 }
 
-/** 登录并持久化 Blade 令牌。 */
+/**
+ * 使用用户名和密码登录并持久化登录会话。
+ *
+ * @param username 用户名。
+ * @param password 原始密码。
+ * @returns 登录成功后的 Blade 令牌响应。
+ * @throws 当登录接口失败或响应结构不符合预期时抛出错误。
+ */
 export async function login(username: string, password: string): Promise<BladeTokenResponse> {
   const data = await loginApi(username.trim(), password.trim())
   persistLoginSession(data)
   return data
 }
 
-/** 使用刷新令牌续期登录会话，并复用正在进行的续期请求。 */
+/**
+ * 使用刷新令牌续期登录会话，并复用正在进行的续期请求。
+ *
+ * @returns 续期成功后的 Blade 令牌响应。
+ * @throws 当缺少刷新令牌、刷新失败或响应结构不符合预期时抛出错误。
+ */
 export async function refreshLoginSession(): Promise<BladeTokenResponse> {
   if (refreshLoginSessionPromise) {
     return refreshLoginSessionPromise
@@ -67,12 +95,21 @@ export async function refreshLoginSession(): Promise<BladeTokenResponse> {
   return refreshLoginSessionPromise
 }
 
-/** 退出登录并清理本地会话。 */
+/**
+ * 退出登录并清理本地登录会话。
+ *
+ * @remarks 该函数只清理本地缓存，不负责页面跳转。
+ */
 export function logout(): void {
   clearAuthCache()
 }
 
-/** 让所有入口用同一个 interface 处理登录会话过期。 */
+/**
+ * 让所有入口用同一个 interface 处理登录会话过期。
+ *
+ * @param message 登录会话过期时展示给用户的提示文案。
+ * @remarks 会清理本地登录会话，并派发全局登录会话过期事件。
+ */
 export function expireLoginSession(message = DEFAULT_EXPIRED_MESSAGE): void {
   clearAuthCache()
   window.dispatchEvent(new CustomEvent<LoginSessionExpiredDetail>(LOGIN_SESSION_EXPIRED_EVENT, {
@@ -80,7 +117,12 @@ export function expireLoginSession(message = DEFAULT_EXPIRED_MESSAGE): void {
   }))
 }
 
-/** 订阅登录会话过期事件，返回取消订阅函数。 */
+/**
+ * 订阅登录会话过期事件。
+ *
+ * @param callback 登录会话过期时执行的回调。
+ * @returns 取消订阅函数。
+ */
 export function subscribeLoginSessionExpired(callback: (detail: LoginSessionExpiredDetail) => void): () => void {
   function handleExpired(event: Event) {
     const customEvent = event as CustomEvent<LoginSessionExpiredDetail>

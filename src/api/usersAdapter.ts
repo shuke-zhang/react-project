@@ -3,6 +3,9 @@ import { z } from 'zod'
 import { mockUsers } from '@/mocks/users'
 import { parseWithSchema } from '@/utils/validation'
 
+/**
+ * 用户数据适配器，隔离真实后端和 mock 数据源差异。
+ */
 export interface UsersDataAdapter {
   getUsers: (query?: UserListQuery) => Promise<UserModel[]>
   getUserDetail: (id: string) => Promise<UserModel>
@@ -27,14 +30,30 @@ const userSchema = z.object({
 })
 const userListSchema = z.array(userSchema)
 
+/**
+ * 模拟接口延迟。
+ *
+ * @returns 延迟完成的 Promise。
+ */
 function waitForMockApi(): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, 80))
 }
 
+/**
+ * 创建用户数据更新时间文本。
+ *
+ * @returns ISO 格式时间字符串。
+ */
 function createNowText(): string {
   return new Date().toISOString()
 }
 
+/**
+ * 创建基于内存数据的用户数据适配器。
+ *
+ * @param initialUsers 初始用户列表。
+ * @returns 用户数据适配器及测试用重置方法。
+ */
 export function createMockUsersDataAdapter(initialUsers: UserModel[] = mockUsers): UsersDataAdapter & {
   reset: (nextUsers?: UserModel[]) => void
 } {

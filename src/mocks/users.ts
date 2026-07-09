@@ -1,5 +1,8 @@
 import type { UserModel } from '@/types/user'
 
+/**
+ * 本地演示和测试使用的 mock 用户列表。
+ */
 export const mockUsers: UserModel[] = [
   {
     id: '1001',

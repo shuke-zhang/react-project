@@ -2,6 +2,11 @@ import { ApiOutlined, SafetyCertificateOutlined, TeamOutlined } from '@ant-desig
 import { Card, Col, Row, Statistic, Typography } from 'antd'
 import './HomeView.css'
 
+/**
+ * 工作台首页。
+ *
+ * @returns 展示模板能力概览和统计卡片的首页节点。
+ */
 export function HomeView() {
   return (
     <main className="home-view">

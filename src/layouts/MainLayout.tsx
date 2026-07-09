@@ -27,6 +27,12 @@ interface MainLayoutProps {
   onToggleCollapsed: () => void
 }
 
+/**
+ * 后台工作台主布局。
+ *
+ * @param props 布局折叠状态和折叠切换回调。
+ * @returns 包含侧边菜单、顶部栏、标签页和内容出口的布局节点。
+ */
 export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
@@ -42,11 +48,17 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
     setOpenedPaths(paths => openWorkspacePath(paths, location.pathname))
   }, [location.pathname])
 
+  /** 退出当前登录会话并返回登录页。 */
   function handleLogout() {
     logout()
     navigate('/login', { replace: true })
   }
 
+  /**
+   * 切换浏览器全屏状态。
+   *
+   * @returns 全屏状态切换完成后的 Promise。
+   */
   async function toggleFullscreen() {
     if (document.fullscreenElement) {
       await document.exitFullscreen()
@@ -56,10 +68,20 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
     await document.documentElement.requestFullscreen()
   }
 
+  /**
+   * 切换到指定工作台标签页。
+   *
+   * @param path 标签页路径。
+   */
   function handleTabClick(path: string) {
     navigate(path)
   }
 
+  /**
+   * 关闭指定工作台标签页，并在必要时跳转到兜底标签页。
+   *
+   * @param path 需要关闭的标签页路径。
+   */
   function closeTab(path: string) {
     const result = closeWorkspaceTab(openedPaths, location.pathname, path)
     setOpenedPaths(result.openedPaths)

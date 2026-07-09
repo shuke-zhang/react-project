@@ -9,16 +9,32 @@ interface LoginFormValues {
   password: string
 }
 
+/**
+ * 从路由状态中读取登录成功后的回跳路径。
+ *
+ * @param state React Router location state。
+ * @returns 合法的站内回跳路径；缺失或非法时回到首页。
+ */
 function getRedirectPath(state: unknown): string {
   const maybeState = state as { from?: string } | null
   return maybeState?.from && maybeState.from.startsWith('/') ? maybeState.from : '/home'
 }
 
+/**
+ * 登录页面。
+ *
+ * @returns 登录表单和产品说明区域。
+ */
 export function LoginView() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
 
+  /**
+   * 提交登录表单并在成功后跳转到目标页面。
+   *
+   * @param values 登录表单值。
+   */
   async function handleFinish(values: LoginFormValues) {
     setLoading(true)
 
