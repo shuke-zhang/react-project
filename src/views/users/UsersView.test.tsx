@@ -62,13 +62,11 @@ describe('页面行为', () => {
     expect(await screen.findByText('企业级 React 项目模板')).toBeInTheDocument()
   })
 
-  it('用户管理通过标准页面容器展示页头和新增操作', async () => {
+  it('用户管理展示新增用户操作并支持新增用户', async () => {
     setCacheToken('mock-token')
     renderWithRouter('/users')
 
-    expect(await screen.findByRole('heading', { level: 1, name: '用户管理' })).toBeInTheDocument()
-    expect(screen.getAllByText('用户管理')).toHaveLength(2)
-    expect(screen.getByRole('button', { name: /新增\s*用户/ })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: /新增\s*用户/ })).toBeInTheDocument()
   })
 
   it('用户管理支持新增用户', async () => {

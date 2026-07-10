@@ -1,5 +1,5 @@
 import { Card, Typography } from 'antd'
-import { PageContainer } from '@/components/PageContainer'
+import { BasicContainer } from '@/components/BasicContainer'
 
 /**
  * 系统字典管理路由占位视图。
@@ -8,10 +8,10 @@ import { PageContainer } from '@/components/PageContainer'
  */
 export function SystemDictView() {
   return (
-    <PageContainer>
-      <Card>
-        <Typography.Paragraph className="!mb-0">系统字典功能将在此处扩展。</Typography.Paragraph>
+    <BasicContainer>
+                            <Card>
+              <Typography.Paragraph className="!mb-0">系统字典功能将在此处扩展。</Typography.Paragraph>
       </Card>
-    </PageContainer>
+    </BasicContainer>
   )
 }

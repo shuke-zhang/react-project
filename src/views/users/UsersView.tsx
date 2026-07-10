@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, message } from 'antd'
 import { useState } from 'react'
 import { createUser, deleteUser, getUsers, updateUser } from '@/api/users'
-import { PageContainer } from '@/components/PageContainer'
+import { BasicContainer } from '@/components/BasicContainer'
 import {
   DEFAULT_USER_QUERY,
   USER_QUERY_KEY,
@@ -138,37 +138,38 @@ export function UsersView() {
   }
 
   return (
-    <PageContainer
-      extra={<Button icon={<PlusOutlined />} type="primary" onClick={handleCreate}>新增用户</Button>}
-    >
-      <Card className="rounded-lg [&_.ant-card-body]:flex [&_.ant-card-body]:flex-wrap [&_.ant-card-body]:items-start [&_.ant-card-body]:justify-between [&_.ant-card-body]:gap-4">
-        <Form layout="inline" onFinish={values => setQuery(values)} initialValues={DEFAULT_USER_QUERY}>
-          <Form.Item name="keyword" label="关键词">
-            <Input allowClear placeholder="账号、姓名或手机号" />
-          </Form.Item>
-          <Form.Item name="status" label="状态">
-            <Select
-              style={{ width: 130 }}
-              options={[...USER_STATUS_FILTER_OPTIONS]}
-            />
-          </Form.Item>
-          <Form.Item>
-            <Space>
-              <Button htmlType="submit" type="primary">查询</Button>
-              <Button icon={<ReloadOutlined />} onClick={() => setQuery(DEFAULT_USER_QUERY)}>重置</Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Card>
-      <Card>
-        <Table<UserModel>
-          rowKey="id"
-          columns={columns}
-          dataSource={usersQuery.data ?? []}
-          loading={usersQuery.isLoading}
-          pagination={{ pageSize: 8, showTotal: total => `共 ${total} 条` }}
-        />
-      </Card>
+    <BasicContainer>
+      <div className="grid gap-4">
+        <Card className="rounded-lg [&_.ant-card-body]:flex [&_.ant-card-body]:flex-wrap [&_.ant-card-body]:items-start [&_.ant-card-body]:justify-between [&_.ant-card-body]:gap-4">
+          <Form layout="inline" onFinish={values => setQuery(values)} initialValues={DEFAULT_USER_QUERY}>
+            <Form.Item name="keyword" label="关键词">
+              <Input allowClear placeholder="账号、姓名或手机号" />
+            </Form.Item>
+            <Form.Item name="status" label="状态">
+              <Select
+                style={{ width: 130 }}
+                options={[...USER_STATUS_FILTER_OPTIONS]}
+              />
+            </Form.Item>
+            <Form.Item>
+              <Space>
+                <Button htmlType="submit" type="primary">查询</Button>
+                <Button icon={<ReloadOutlined />} onClick={() => setQuery(DEFAULT_USER_QUERY)}>重置</Button>
+              </Space>
+            </Form.Item>
+          </Form>
+          <Button icon={<PlusOutlined />} type="primary" onClick={handleCreate}>新增用户</Button>
+        </Card>
+        <Card>
+          <Table<UserModel>
+            rowKey="id"
+            columns={columns}
+            dataSource={usersQuery.data ?? []}
+            loading={usersQuery.isLoading}
+            pagination={{ pageSize: 8, showTotal: total => `共 ${total} 条` }}
+          />
+        </Card>
+      </div>
       <Modal
         title={editingUser ? '编辑用户' : '新增用户'}
         open={modalOpen}
@@ -205,6 +206,6 @@ export function UsersView() {
           </Form.Item>
         </Form>
       </Modal>
-    </PageContainer>
+    </BasicContainer>
   )
 }

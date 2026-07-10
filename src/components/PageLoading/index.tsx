@@ -1,4 +1,4 @@
-﻿import { Spin } from 'antd'
+import { Spin } from 'antd'
 
 /**
  * 页面级加载状态组件。

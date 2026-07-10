@@ -1,6 +1,6 @@
 import { ApiOutlined, SafetyCertificateOutlined, TeamOutlined } from '@ant-design/icons'
 import { Card, Col, Row, Statistic, Typography } from 'antd'
-import { PageContainer } from '@/components/PageContainer'
+import { BasicContainer } from '@/components/BasicContainer'
 
 /**
  * 工作台首页。
@@ -9,7 +9,7 @@ import { PageContainer } from '@/components/PageContainer'
  */
 export function HomeView() {
   return (
-    <PageContainer>
+    <BasicContainer>
       <section className="grid gap-[18px]">
         <section className="min-h-[210px] rounded-lg border border-[#dce7e8] bg-white bg-[linear-gradient(135deg,rgb(13_96_116_/_12%),rgb(53_189_167_/_8%))] p-[34px] text-[#102b35]">
           <p className="mb-3 mt-0 text-[11px] font-extrabold tracking-[0.18em] text-[#0d6074]">ENTERPRISE TEMPLATE</p>
@@ -40,6 +40,6 @@ export function HomeView() {
           </Typography.Paragraph>
         </Card>
       </section>
-    </PageContainer>
+    </BasicContainer>
   )
 }
