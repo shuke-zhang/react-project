@@ -2,10 +2,11 @@ import {
   CloseOutlined,
   DownOutlined,
   FullscreenOutlined,
+  MenuOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons'
-import { Avatar, Button, Dropdown, Layout, Menu, Tooltip, Typography } from 'antd'
+import { Avatar, Button, Drawer, Dropdown, Layout, Menu, Tooltip } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { logout } from '@/api/session'
@@ -14,7 +15,6 @@ import {
   closeWorkspaceTab,
   getOpenedWorkspaceTabs,
   getWorkspaceMenuItems,
-  getWorkspacePageTitle,
   openWorkspacePath,
 } from '@/layouts/workspaceNavigation'
 
@@ -22,7 +22,7 @@ const { Header, Sider, Content } = Layout
 const menuItems = getWorkspaceMenuItems()
 
 const siderClassName = [
-  'bg-admin-sider shadow-[4px_0_18px_rgb(24_39_56_/_12%)] max-[720px]:!w-full max-[720px]:!min-w-full max-[720px]:!max-w-full',
+  'bg-admin-sider shadow-[4px_0_18px_rgb(24_39_56_/_12%)] max-[720px]:!hidden',
   '[&_.ant-layout-sider-children]:flex [&_.ant-layout-sider-children]:flex-col [&_.ant-layout-sider-children]:!bg-admin-sider',
 ].join(' ')
 
@@ -58,7 +58,7 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const [openedPaths, setOpenedPaths] = useState<string[]>([HOME_PATH])
-  const pageTitle = getWorkspacePageTitle(location.pathname)
+  const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false)
 
   const openedTabs = useMemo(
     () => getOpenedWorkspaceTabs(openedPaths),
@@ -99,6 +99,16 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
   }
 
   /**
+   * 跳转到工作台页面，并在移动端收起导航抽屉。
+   *
+   * @param path 目标工作台页面路径。
+   */
+  function handleWorkspaceNavigate(path: string) {
+    navigate(path)
+    setMobileNavigationOpen(false)
+  }
+
+  /**
    * 关闭指定工作台标签页，并在必要时跳转到兜底标签页。
    *
    * @param path 需要关闭的标签页路径。
@@ -121,7 +131,7 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
             collapsed ? 'justify-center px-0' : '',
           ].join(' ')}
           type="button"
-          onClick={() => navigate(HOME_PATH)}
+          onClick={() => handleWorkspaceNavigate(HOME_PATH)}
         >
           <span className="grid size-9 flex-none place-items-center rounded-lg bg-[linear-gradient(135deg,#3fd1bd,#25a994)] text-2xl font-semibold leading-none shadow-[0_8px_18px_rgb(37_169_148_/_28%)]">+</span>
           {!collapsed && (
@@ -143,12 +153,19 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
           theme="dark"
           items={menuItems}
           selectedKeys={[location.pathname]}
-          onClick={({ key }) => navigate(key)}
+          onClick={({ key }) => handleWorkspaceNavigate(key)}
         />
       </Sider>
       <Layout className="min-w-0">
-        <Header className="flex h-14 items-center justify-between border-b border-[#e6e9ed] bg-white py-0 pl-[18px] pr-6 shadow-[0_1px_5px_rgb(32_50_68_/_5%)] max-[720px]:px-3">
+        <Header aria-label="全局工具栏" className="flex h-14 items-center justify-between border-b border-[#e6e9ed] bg-white py-0 pl-[18px] pr-6 shadow-[0_1px_5px_rgb(32_50_68_/_5%)] max-[720px]:px-3">
           <div className="flex items-center gap-[18px] max-[720px]:gap-2">
+            <Button
+              aria-label="打开导航菜单"
+              className="grid size-[34px] place-items-center text-[#3f4958] hover:!bg-[#f0f5f4] hover:!text-[#269d88] min-[721px]:hidden"
+              type="text"
+              icon={<MenuOutlined />}
+              onClick={() => setMobileNavigationOpen(true)}
+            />
             <Button
               aria-label="展开或收起侧边栏"
               className="grid size-[34px] place-items-center text-[#3f4958] hover:!bg-[#f0f5f4] hover:!text-[#269d88] max-[720px]:hidden"
@@ -156,7 +173,6 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={onToggleCollapsed}
             />
-            <Typography.Text className="text-base font-medium text-admin-text-strong">{pageTitle}</Typography.Text>
           </div>
           <div className="flex items-center gap-3">
             <Tooltip title="切换全屏">
@@ -186,6 +202,23 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
             </Dropdown>
           </div>
         </Header>
+        <Drawer
+          title="工作台导航"
+          open={mobileNavigationOpen}
+          placement="left"
+          width={280}
+          onClose={() => setMobileNavigationOpen(false)}
+        >
+          <Menu
+            className={menuClassName}
+            defaultOpenKeys={['system-management']}
+            mode="inline"
+            theme="dark"
+            items={menuItems}
+            selectedKeys={[location.pathname]}
+            onClick={({ key }) => handleWorkspaceNavigate(key)}
+          />
+        </Drawer>
         <nav className="flex min-h-11 items-center gap-[5px] overflow-x-auto border-b border-[#dfe5ec] bg-white px-5 py-[5px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-[720px]:px-2.5" aria-label="页面标签">
           {openedTabs.map(tab => {
             const active = tab.path === location.pathname

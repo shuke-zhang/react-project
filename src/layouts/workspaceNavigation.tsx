@@ -19,12 +19,25 @@ export const SYSTEM_DICT_PATH = '/system/dict'
 export type WorkspacePageKey = 'home' | 'users' | 'systemDict'
 
 /**
- * 工作台页面注册项。
+ * 工作台页面的展示类型。
  */
-export interface WorkspacePage {
+export type WorkspacePageType = 'overview' | 'standard'
+
+/**
+ * 工作台页面的结构元数据。
+ */
+export interface WorkspacePageMetadata {
   key: WorkspacePageKey
   path: string
   title: string
+  breadcrumbs: string[]
+  pageType: WorkspacePageType
+}
+
+/**
+ * 工作台页面注册项。
+ */
+export interface WorkspacePage extends WorkspacePageMetadata {
   loadView?: () => LazyExoticComponent<() => ReactNode>
 }
 
@@ -72,18 +85,24 @@ export const WORKSPACE_PAGES: WorkspacePage[] = [
     key: 'home',
     path: HOME_PATH,
     title: '首页',
+    breadcrumbs: ['首页'],
+    pageType: 'overview',
     loadView: () => lazy(() => import('@/views/home/HomeView').then(module => ({ default: module.HomeView }))),
   },
   {
     key: 'users',
     path: '/users',
     title: '用户管理',
+    breadcrumbs: ['用户管理'],
+    pageType: 'standard',
     loadView: () => lazy(() => import('@/views/users/UsersView').then(module => ({ default: module.UsersView }))),
   },
   {
     key: 'systemDict',
     path: SYSTEM_DICT_PATH,
     title: '字典管理',
+    breadcrumbs: ['系统管理', '字典管理'],
+    pageType: 'standard',
     loadView: () => lazy(() => import('@/views/system/dict/index').then(module => ({ default: module.SystemDictView }))),
   },
 ]
@@ -117,7 +136,7 @@ export const WORKSPACE_MENU: Array<WorkspaceMenuPageItem | WorkspaceMenuGroupIte
 ]
 
 const pageMap = new Map(WORKSPACE_PAGES.map(page => [page.key, page]))
-const pageTitleMap = new Map(WORKSPACE_PAGES.map(page => [page.path, page.title]))
+const pagePathMap = new Map(WORKSPACE_PAGES.map(page => [page.path, page]))
 
 /**
  * 根据业务标识读取工作台页面注册项。
@@ -137,13 +156,35 @@ function getWorkspacePageByKey(pageKey: WorkspacePageKey): WorkspacePage {
 }
 
 /**
+ * 根据路径读取工作台页面的结构元数据。
+ *
+ * @param pathname 当前路由路径。
+ * @returns 已注册页面的结构元数据；未知路径返回 `undefined`。
+ */
+export function getWorkspacePageMetadata(pathname: string): WorkspacePageMetadata | undefined {
+  const page = pagePathMap.get(pathname)
+
+  if (!page) {
+    return undefined
+  }
+
+  return {
+    key: page.key,
+    path: page.path,
+    title: page.title,
+    breadcrumbs: page.breadcrumbs,
+    pageType: page.pageType,
+  }
+}
+
+/**
  * 根据路径读取工作台页面标题。
  *
  * @param pathname 当前路由路径。
  * @returns 已注册页面标题；未知路径回退为首页标题。
  */
 export function getWorkspacePageTitle(pathname: string): string {
-  return pageTitleMap.get(pathname) || '首页'
+  return getWorkspacePageMetadata(pathname)?.title || '首页'
 }
 
 /**
@@ -153,7 +194,7 @@ export function getWorkspacePageTitle(pathname: string): string {
  * @returns 已注册时返回 `true`。
  */
 export function isKnownWorkspacePage(pathname: string): boolean {
-  return pageTitleMap.has(pathname)
+  return pagePathMap.has(pathname)
 }
 
 /**

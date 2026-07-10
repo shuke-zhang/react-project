@@ -4,6 +4,7 @@ import {
   SYSTEM_DICT_PATH,
   closeWorkspaceTab,
   getOpenedWorkspaceTabs,
+  getWorkspacePageMetadata,
   getWorkspaceMenuItems,
   getWorkspacePageTitle,
   getWorkspaceRouteObjects,
@@ -11,6 +12,16 @@ import {
 } from '@/layouts/workspaceNavigation'
 
 describe('工作台导航 module', () => {
+  it('为系统字典提供标准业务页元数据', () => {
+    expect(getWorkspacePageMetadata(SYSTEM_DICT_PATH)).toEqual({
+      key: 'systemDict',
+      path: SYSTEM_DICT_PATH,
+      title: '字典管理',
+      breadcrumbs: ['系统管理', '字典管理'],
+      pageType: 'standard',
+    })
+  })
+
   it('根据路径读取页面标题', () => {
     expect(getWorkspacePageTitle('/users')).toBe('用户管理')
     expect(getWorkspacePageTitle(SYSTEM_DICT_PATH)).toBe('字典管理')

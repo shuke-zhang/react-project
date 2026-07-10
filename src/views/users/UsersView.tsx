@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, message } from 'antd'
 import { useState } from 'react'
 import { createUser, deleteUser, getUsers, updateUser } from '@/api/users'
+import { PageContainer } from '@/components/PageContainer'
 import {
   DEFAULT_USER_QUERY,
   USER_QUERY_KEY,
@@ -94,9 +95,17 @@ export function UsersView() {
     },
   ]
 
-  /** 打开新增用户弹窗并初始化表单默认值。 */
+  /**
+   * 打开新增用户弹窗并初始化表单默认值。
+   *
+   * 先重置表单再设置默认值，避免上一次编辑残留的数据污染新增表单：
+   * `setFieldsValue` 只会更新传入的字段，未传入字段会保留旧值，
+   * 而 `toUserFormValues()` 在新增模式下仅返回 `status` 默认值，
+   * 因此必须先用 `resetFields` 清空全部字段。
+   */
   function handleCreate() {
     setEditingUser(null)
+    form.resetFields()
     form.setFieldsValue(toUserFormValues())
     setModalOpen(true)
   }
@@ -129,7 +138,9 @@ export function UsersView() {
   }
 
   return (
-    <main className="grid gap-4">
+    <PageContainer
+      extra={<Button icon={<PlusOutlined />} type="primary" onClick={handleCreate}>新增用户</Button>}
+    >
       <Card className="rounded-lg [&_.ant-card-body]:flex [&_.ant-card-body]:flex-wrap [&_.ant-card-body]:items-start [&_.ant-card-body]:justify-between [&_.ant-card-body]:gap-4">
         <Form layout="inline" onFinish={values => setQuery(values)} initialValues={DEFAULT_USER_QUERY}>
           <Form.Item name="keyword" label="关键词">
@@ -148,7 +159,6 @@ export function UsersView() {
             </Space>
           </Form.Item>
         </Form>
-        <Button icon={<PlusOutlined />} type="primary" onClick={handleCreate}>新增用户</Button>
       </Card>
       <Card>
         <Table<UserModel>
@@ -195,6 +205,6 @@ export function UsersView() {
           </Form.Item>
         </Form>
       </Modal>
-    </main>
+    </PageContainer>
   )
 }

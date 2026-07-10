@@ -1,14 +1,17 @@
-import { Card } from "antd";
+import { Card, Typography } from 'antd'
+import { PageContainer } from '@/components/PageContainer'
 
 /**
  * 系统字典管理路由占位视图。
  *
- * @returns 暂不渲染页面内容，仅用于提前注册系统字典管理路由入口。
+ * @returns 使用标准业务页容器呈现的系统字典占位页面。
  */
 export function SystemDictView() {
-  return <div>
-    <Card>
-    字典管理
-    </Card>
-  </div>
+  return (
+    <PageContainer>
+      <Card>
+        <Typography.Paragraph className="!mb-0">系统字典功能将在此处扩展。</Typography.Paragraph>
+      </Card>
+    </PageContainer>
+  )
 }

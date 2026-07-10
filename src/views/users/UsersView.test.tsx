@@ -50,7 +50,7 @@ describe('页面行为', () => {
   it('未登录访问业务页面时跳转到登录页', async () => {
     renderWithRouter('/users')
 
-    expect(await screen.findByText('工作台登录')).toBeInTheDocument()
+    expect(await screen.findByRole('region', { name: '工作台登录' })).toBeInTheDocument()
   })
 
   it('登录成功后进入首页', async () => {
@@ -60,6 +60,15 @@ describe('页面行为', () => {
     await user.click(screen.getByRole('button', { name: /登\s*录/ }))
 
     expect(await screen.findByText('企业级 React 项目模板')).toBeInTheDocument()
+  })
+
+  it('用户管理通过标准页面容器展示页头和新增操作', async () => {
+    setCacheToken('mock-token')
+    renderWithRouter('/users')
+
+    expect(await screen.findByRole('heading', { level: 1, name: '用户管理' })).toBeInTheDocument()
+    expect(screen.getAllByText('用户管理')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: /新增\s*用户/ })).toBeInTheDocument()
   })
 
   it('用户管理支持新增用户', async () => {

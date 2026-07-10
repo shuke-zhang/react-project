@@ -13,3 +13,19 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: () => false,
   }),
 })
+
+/**
+ * 为 JSDOM 补充 Ant Design 布局组件依赖的尺寸监听 API。
+ */
+class ResizeObserverMock implements ResizeObserver {
+  disconnect(): void {}
+
+  observe(): void {}
+
+  unobserve(): void {}
+}
+
+Object.defineProperty(globalThis, 'ResizeObserver', {
+  writable: true,
+  value: ResizeObserverMock,
+})
