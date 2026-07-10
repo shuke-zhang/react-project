@@ -1,6 +1,5 @@
 import { ApiOutlined, SafetyCertificateOutlined, TeamOutlined } from '@ant-design/icons'
 import { Card, Col, Row, Statistic, Typography } from 'antd'
-import './HomeView.css'
 
 /**
  * 工作台首页。
@@ -9,11 +8,11 @@ import './HomeView.css'
  */
 export function HomeView() {
   return (
-    <main className="home-view">
-      <section className="home-view__hero">
-        <p>ENTERPRISE TEMPLATE</p>
-        <h1>企业级 React 项目模板</h1>
-        <span>内置真实登录、路由守卫、请求封装、接口校验和用户 CRUD 示例，适合作为正式业务项目起点。</span>
+    <main className="grid gap-[18px]">
+      <section className="min-h-[210px] rounded-lg border border-[#dce7e8] bg-white bg-[linear-gradient(135deg,rgb(13_96_116_/_12%),rgb(53_189_167_/_8%))] p-[34px] text-[#102b35]">
+        <p className="mb-3 mt-0 text-[11px] font-extrabold tracking-[0.18em] text-[#0d6074]">ENTERPRISE TEMPLATE</p>
+        <h1 className="mb-4 mt-0 text-[34px] font-bold leading-normal">企业级 React 项目模板</h1>
+        <span className="leading-[1.8] text-admin-text-muted">内置真实登录、路由守卫、请求封装、接口校验和用户 CRUD 示例，适合作为正式业务项目起点。</span>
       </section>
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>
@@ -32,7 +31,7 @@ export function HomeView() {
           </Card>
         </Col>
       </Row>
-      <Card className="home-view__card">
+      <Card className="rounded-lg">
         <Typography.Title level={4}>模板能力</Typography.Title>
         <Typography.Paragraph>
           当前模板聚焦企业后台常见基础能力，不绑定具体业务领域。用户管理页使用 REST 风格 mock 接口，后续可以替换为真实后端服务。

@@ -1,16 +1,33 @@
-* {
-  box-sizing: border-box;
+@import "tailwindcss" important;
+
+@theme {
+  --font-sans: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  --color-admin-page: #eef1f5;
+  --color-admin-sider: #25384d;
+  --color-admin-sider-strong: #223347;
+  --color-admin-primary: #168b78;
+  --color-admin-primary-hover: #147c6b;
+  --color-admin-primary-soft: #e8f8f4;
+  --color-admin-text: #273142;
+  --color-admin-text-strong: #34405a;
+  --color-admin-text-muted: #60777f;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: #eef1f5;
-  font-family: Microsoft YaHei, PingFang SC, system-ui, sans-serif;
-}
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
+  body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    background: var(--color-admin-page);
+    font-family: var(--font-sans);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }

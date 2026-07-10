@@ -15,7 +15,6 @@ import {
   toUpdateUserParams,
   toUserFormValues,
 } from '@/views/users/userManagement'
-import './UsersView.css'
 
 /**
  * 用户管理页面。
@@ -130,8 +129,8 @@ export function UsersView() {
   }
 
   return (
-    <main className="users-view">
-      <Card className="users-view__toolbar">
+    <main className="grid gap-4">
+      <Card className="rounded-lg [&_.ant-card-body]:flex [&_.ant-card-body]:flex-wrap [&_.ant-card-body]:items-start [&_.ant-card-body]:justify-between [&_.ant-card-body]:gap-4">
         <Form layout="inline" onFinish={values => setQuery(values)} initialValues={DEFAULT_USER_QUERY}>
           <Form.Item name="keyword" label="关键词">
             <Input allowClear placeholder="账号、姓名或手机号" />

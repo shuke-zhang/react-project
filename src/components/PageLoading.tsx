@@ -1,5 +1,4 @@
 ﻿import { Spin } from 'antd'
-import './PageLoading.css'
 
 /**
  * 页面级加载状态组件。
@@ -8,7 +7,7 @@ import './PageLoading.css'
  */
 export function PageLoading() {
   return (
-    <div className="page-loading" role="status" aria-label="页面加载中">
+    <div className="grid min-h-60 place-items-center" role="status" aria-label="页面加载中">
       <Spin tip="页面加载中..." />
     </div>
   )
