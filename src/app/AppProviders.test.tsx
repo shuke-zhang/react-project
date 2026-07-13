@@ -1,5 +1,5 @@
-import { theme } from 'antd'
 import { render, screen } from '@testing-library/react'
+import { theme } from 'antd'
 import { AppProviders } from '@/app/AppProviders'
 
 /**
