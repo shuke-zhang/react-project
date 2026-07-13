@@ -10,7 +10,7 @@ export function SystemDictView() {
   return (
     <BasicContainer>
       <Card>
-        <Typography.Paragraph className="!mb-0">系统字典功能将在此处扩展。</Typography.Paragraph>
+        <Typography.Paragraph className="mb-0!">系统字典功能将在此处扩展。</Typography.Paragraph>
       </Card>
     </BasicContainer>
   )

@@ -178,7 +178,7 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
             <Tooltip title="切换全屏">
               <Button
                 aria-label="切换全屏"
-                className="grid size-[34px] place-items-center text-[#3f4958] hover:!bg-[#f0f5f4] hover:!text-[#269d88]"
+                className="!inline-flex size-[34px] !items-center !justify-center !leading-none text-[#3f4958] hover:!bg-[#f0f5f4] hover:!text-[#269d88]"
                 type="text"
                 icon={<FullscreenOutlined />}
                 onClick={() => void toggleFullscreen()}

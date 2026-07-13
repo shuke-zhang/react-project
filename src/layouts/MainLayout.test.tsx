@@ -21,7 +21,12 @@ describe('后台工作台主布局', () => {
     const toolbar = screen.getByRole('banner', { name: '全局工具栏' })
 
     expect(within(toolbar).getByRole('button', { name: '展开或收起侧边栏' })).toBeInTheDocument()
-    expect(within(toolbar).getByRole('button', { name: '切换全屏' })).toBeInTheDocument()
+    expect(within(toolbar).getByRole('button', { name: '切换全屏' })).toHaveClass(
+      '!inline-flex',
+      '!items-center',
+      '!justify-center',
+      '!leading-none',
+    )
     expect(within(toolbar).queryByText('用户管理')).not.toBeInTheDocument()
   })
 
