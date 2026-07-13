@@ -123,7 +123,7 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
   }
 
   return (
-    <Layout className="min-h-screen bg-admin-page text-admin-text max-[720px]:block">
+    <Layout className="h-dvh overflow-hidden bg-admin-page text-admin-text" data-testid="工作台外壳">
       <Sider className={siderClassName} collapsed={collapsed} width={222} collapsedWidth={76}>
         <button
           className={[
@@ -156,7 +156,7 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
           onClick={({ key }) => handleWorkspaceNavigate(key)}
         />
       </Sider>
-      <Layout className="min-w-0">
+      <Layout className="min-h-0 min-w-0 flex-1">
         <Header aria-label="全局工具栏" className="flex h-14 items-center justify-between border-b border-[#e6e9ed] bg-white py-0 pl-[18px] pr-6 shadow-[0_1px_5px_rgb(32_50_68_/_5%)] max-[720px]:px-3">
           <div className="flex items-center gap-[18px] max-[720px]:gap-2">
             <Button
@@ -258,7 +258,7 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
             )
           })}
         </nav>
-        <Content className="min-h-[calc(100vh-100px)] overflow-auto p-[22px] max-[720px]:p-3.5">
+        <Content aria-label="工作台内容区" className="min-h-0 flex-1 overflow-hidden p-[22px] max-[720px]:p-3.5">
           <Outlet />
         </Content>
       </Layout>

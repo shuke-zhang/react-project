@@ -19,7 +19,11 @@ describe('后台工作台主布局', () => {
     )
 
     const toolbar = screen.getByRole('banner', { name: '全局工具栏' })
+    const workspaceShell = screen.getByTestId('工作台外壳')
+    const content = screen.getByRole('main', { name: '工作台内容区' })
 
+    expect(workspaceShell).toHaveClass('h-dvh', 'overflow-hidden')
+    expect(content).toHaveClass('min-h-0', 'flex-1', 'overflow-hidden')
     expect(within(toolbar).getByRole('button', { name: '展开或收起侧边栏' })).toBeInTheDocument()
     expect(within(toolbar).getByRole('button', { name: '切换全屏' })).toHaveClass(
       '!inline-flex',
