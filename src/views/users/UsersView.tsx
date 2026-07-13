@@ -1,20 +1,21 @@
 import type { UserModel, UserStatus } from '@/types/user'
+import type { UserFormValues } from '@/views/users/userManagement'
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Button, Card, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag, message } from 'antd'
+import { Button, Card, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd'
 import { useState } from 'react'
 import { createUser, deleteUser, getUsers, updateUser } from '@/api/users'
 import { BasicContainer } from '@/components/BasicContainer'
 import {
-  DEFAULT_USER_QUERY,
-  USER_QUERY_KEY,
-  USER_STATUS_FILTER_OPTIONS,
-  USER_STATUS_OPTIONS,
-  type UserFormValues,
   buildUsersQueryKey,
+  DEFAULT_USER_QUERY,
   toCreateUserParams,
   toUpdateUserParams,
   toUserFormValues,
+  USER_QUERY_KEY,
+  USER_STATUS_FILTER_OPTIONS,
+  USER_STATUS_OPTIONS,
+
 } from '@/views/users/userManagement'
 
 /**
