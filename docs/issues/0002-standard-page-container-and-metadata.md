@@ -3,6 +3,8 @@
 **类型：** AFK  
 **标签：** `ready-for-agent`
 
+> 已被 ADR-0006 取代：项目不再使用 `PageContainer`，业务页面统一采用 `BasicContainer` 与 `Scrollbar`。
+
 ## What to build
 
 将工作台页面注册表扩展为菜单、路由、工作台标签、标题和面包屑的唯一来源，并提供轻量 `PageContainer`。该容器自动呈现标准业务页的标题与面包屑，业务操作通过运行时 `extra` 注入。将系统字典占位页作为首个标准业务页接入，验证这一完整路径；不实现系统字典的实际 CRUD。

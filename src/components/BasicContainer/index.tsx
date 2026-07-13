@@ -17,7 +17,9 @@ interface BasicContainerProps {
  * 提供白底背景与撑满父级的滚动区域，配合 `Scrollbar` 统一滚动条外观，
  * 适合作为业务页面的通用内容包裹器。
  *
- * @param props 容器类名与内容。
+ * @param props 基础内容容器的属性。
+ * @param props.className 追加到外层容器的样式类名。
+ * @param props.children 要放入滚动区域的业务内容。
  * @returns 带白底与滚动条的容器节点。
  */
 export function BasicContainer({ className, children }: BasicContainerProps) {

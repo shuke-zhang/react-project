@@ -1,5 +1,7 @@
 # PRD：基于 Ant Design 的企业后台基础设施升级
 
+> 更新说明：其中关于 `PageContainer`、页面标题、面包屑和页面级操作区的要求已被 ADR-0006 取代。当前项目统一使用 `BasicContainer` 与 `Scrollbar` 承载业务页面内容；本 PRD 的其余导航、主题和响应式设计决策继续有效。
+
 ## Problem Statement
 
 当前企业级 React 项目模板已具备登录会话、工作台标签、用户管理和请求状态管理等基础能力，但页面导航信息分散在不同展示位置，页面标题与全局顶栏耦合，标准业务页缺少一致的页级结构；窄屏下侧栏会占满页面。开发者希望学习 React 版 Ant Design Pro 的企业后台设计方法，同时明确继续使用 Ant Design 核心组件，而不引入 Vue 项目设计或过早引入 ProComponents。
