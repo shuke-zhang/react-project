@@ -1,7 +1,14 @@
+/* oxlint-disable react/only-export-components -- 本文件是路由元数据注册表，不承载可热更新的页面组件。 */
 import type { LazyExoticComponent, ReactNode } from 'react'
 import { lazy } from 'react'
-import { BookOutlined, HomeOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons'
-import type { RouteObject } from 'react-router-dom'
+import { BookOutlined, CodeOutlined, HomeOutlined, ReadOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons'
+import { Navigate, type RouteObject } from 'react-router-dom'
+import {
+  REACT_LEARNING_TOPICS,
+  type ReactLearningTopicMetadata,
+} from '@/views/react-learning/data/topicCatalog'
+
+export { REACT_LEARNING_TOPICS } from '@/views/react-learning/data/topicCatalog'
 
 /**
  * 工作台首页路径。
@@ -14,9 +21,19 @@ export const HOME_PATH = '/home'
 export const SYSTEM_DICT_PATH = '/system/dict'
 
 /**
+ * React 学习模块入口路径。
+ */
+export const REACT_LEARNING_PATH = '/react-learning'
+
+/**
+ * React 学习案例路径。
+ */
+export const REACT_LEARNING_DEFAULT_PATH = REACT_LEARNING_TOPICS[0].path
+
+/**
  * 工作台页面的稳定业务标识。
  */
-export type WorkspacePageKey = 'home' | 'users' | 'systemDict'
+export type WorkspacePageKey = 'home' | 'users' | 'systemDict' | `reactTopic:${string}`
 
 /**
  * 工作台页面的展示类型。
@@ -80,7 +97,7 @@ export interface CloseWorkspaceTabResult {
 /**
  * 工作台页面注册表，集中声明菜单、路由和懒加载视图。
  */
-export const WORKSPACE_PAGES: WorkspacePage[] = [
+const CORE_WORKSPACE_PAGES: WorkspacePage[] = [
   {
     key: 'home',
     path: HOME_PATH,
@@ -108,6 +125,33 @@ export const WORKSPACE_PAGES: WorkspacePage[] = [
 ]
 
 /**
+ * 将知识点元数据转换为工作台页面注册项。
+ *
+ * @param topic React 知识点元数据。
+ * @returns 可用于菜单和路由的工作台页面注册项。
+ */
+function createReactLearningWorkspacePage(topic: ReactLearningTopicMetadata): WorkspacePage {
+  return {
+    key: `reactTopic:${topic.id}`,
+    path: topic.path,
+    title: topic.title,
+    breadcrumbs: ['React 学习', topic.title],
+    pageType: 'standard',
+    loadView: () => lazy(() => import('@/views/react-learning/ReactLearningTopicView').then(module => ({
+      default: () => <module.ReactLearningTopicView topicId={topic.id} />,
+    }))),
+  }
+}
+
+/**
+ * 工作台页面注册表，集中声明菜单、路由和懒加载视图。
+ */
+export const WORKSPACE_PAGES: WorkspacePage[] = [
+  ...CORE_WORKSPACE_PAGES,
+  ...REACT_LEARNING_TOPICS.map(createReactLearningWorkspacePage),
+]
+
+/**
  * 工作台侧边菜单注册表，集中维护顶级菜单和分组关系。
  */
 export const WORKSPACE_MENU: Array<WorkspaceMenuPageItem | WorkspaceMenuGroupItem> = [
@@ -120,6 +164,16 @@ export const WORKSPACE_MENU: Array<WorkspaceMenuPageItem | WorkspaceMenuGroupIte
     key: 'menu-users',
     icon: <TeamOutlined />,
     pageKey: 'users',
+  },
+  {
+    key: 'react-learning',
+    icon: <ReadOutlined />,
+    title: 'React 学习',
+    children: REACT_LEARNING_TOPICS.map(topic => ({
+      key: `menu-react-${topic.id}`,
+      icon: <CodeOutlined />,
+      pageKey: `reactTopic:${topic.id}` as const,
+    })),
   },
   {
     key: 'system-management',
@@ -238,7 +292,7 @@ export function getWorkspaceMenuItems() {
  * @returns React Router 路由对象数组。
  */
 export function getWorkspaceRouteObjects(renderWithSuspense: (node: ReactNode) => ReactNode): RouteObject[] {
-  return WORKSPACE_PAGES.map((page) => {
+  const pageRoutes = WORKSPACE_PAGES.map((page) => {
     const path = page.path.startsWith('/') ? page.path.slice(1) : page.path
 
     if (!page.loadView) {
@@ -255,6 +309,14 @@ export function getWorkspaceRouteObjects(renderWithSuspense: (node: ReactNode) =
       element: renderWithSuspense(<View />),
     }
   })
+
+  return [
+    ...pageRoutes,
+    {
+      path: REACT_LEARNING_PATH.slice(1),
+      element: <Navigate to={REACT_LEARNING_DEFAULT_PATH} replace />,
+    },
+  ]
 }
 
 /**

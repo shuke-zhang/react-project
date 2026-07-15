@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   HOME_PATH,
+  REACT_LEARNING_TOPICS,
   SYSTEM_DICT_PATH,
   closeWorkspaceTab,
   getOpenedWorkspaceTabs,
@@ -49,8 +50,8 @@ describe('工作台导航 module', () => {
     const menuItems = getWorkspaceMenuItems()
     const routes = getWorkspaceRouteObjects(node => node)
 
-    expect(menuItems.map(item => item?.key)).toEqual([HOME_PATH, '/users', 'system-management'])
-    expect(menuItems[2]).toMatchObject({
+    expect(menuItems.map(item => item?.key)).toEqual([HOME_PATH, '/users', 'react-learning', 'system-management'])
+    expect(menuItems[3]).toMatchObject({
       key: 'system-management',
       label: '系统管理',
       children: [
@@ -60,7 +61,37 @@ describe('工作台导航 module', () => {
         },
       ],
     })
-    expect(routes.map(route => route.path)).toEqual(['home', 'users', 'system/dict'])
+    expect(routes.map(route => route.path)).toEqual([
+      'home',
+      'users',
+      'system/dict',
+      ...REACT_LEARNING_TOPICS.map(topic => topic.path.slice(1)),
+      'react-learning',
+    ])
+  })
+
+  it('为 React 学习模块生成 50 个唯一且可深链接的知识点入口', () => {
+    const menuItems = getWorkspaceMenuItems()
+    const routes = getWorkspaceRouteObjects(node => node)
+    const reactLearningMenu = menuItems.find(item => item?.key === 'react-learning')
+    const topicPaths = REACT_LEARNING_TOPICS.map(topic => topic.path)
+
+    expect(REACT_LEARNING_TOPICS).toHaveLength(50)
+    expect(new Set(topicPaths).size).toBe(50)
+    expect(reactLearningMenu).toMatchObject({
+      key: 'react-learning',
+      label: 'React 学习',
+      children: REACT_LEARNING_TOPICS.map(topic => ({
+        key: topic.path,
+        label: topic.title,
+      })),
+    })
+    expect(routes.map(route => `/${route.path}`)).toEqual(expect.arrayContaining(topicPaths))
+    expect(
+      routes
+        .filter(route => topicPaths.includes(`/${route.path}`))
+        .every(route => route.element !== null),
+    ).toBe(true)
   })
 
   it('关闭当前标签时回退到前一个标签', () => {

@@ -61,4 +61,21 @@ describe('后台工作台主布局', () => {
       expect(screen.queryByRole('dialog', { name: '工作台导航' })).not.toBeInTheDocument()
     })
   })
+
+  it('直接访问 React 知识点路由时显示并高亮对应菜单', () => {
+    render(
+      <AppProviders>
+        <MemoryRouter initialEntries={['/react-learning/use-state']}>
+          <Routes>
+            <Route element={<MainLayout collapsed={false} onToggleCollapsed={() => undefined} />}>
+              <Route path="/react-learning/use-state" element={<p>useState 页面内容</p>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </AppProviders>,
+    )
+
+    expect(screen.getByRole('menuitem', { name: /useState/ })).toHaveClass('ant-menu-item-selected')
+    expect(screen.getByText('useState 页面内容')).toBeInTheDocument()
+  })
 })

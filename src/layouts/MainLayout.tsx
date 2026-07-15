@@ -27,7 +27,7 @@ const siderClassName = [
 ].join(' ')
 
 const menuClassName = [
-  'flex-1 !border-e-0 !bg-admin-sider px-2 py-2.5',
+  'min-h-0 flex-1 overflow-y-auto !border-e-0 !bg-admin-sider px-2 py-2.5 [scrollbar-color:#52677c_transparent] [scrollbar-width:thin]',
   '[&.ant-menu-dark]:!bg-transparent [&_.ant-menu-sub]:!bg-transparent [&_.ant-menu-sub]:!text-[#d8e4f0]',
   '[&_.ant-menu-item]:!mx-0 [&_.ant-menu-item]:!my-[3px] [&_.ant-menu-item]:!h-11 [&_.ant-menu-item]:!w-auto [&_.ant-menu-item]:!rounded-lg [&_.ant-menu-item]:!text-[15px] [&_.ant-menu-item]:!text-[#d8e4f0] [&_.ant-menu-item]:!leading-11',
   '[&_.ant-menu-submenu-title]:!mx-0 [&_.ant-menu-submenu-title]:!my-[3px] [&_.ant-menu-submenu-title]:!h-11 [&_.ant-menu-submenu-title]:!w-auto [&_.ant-menu-submenu-title]:!rounded-lg [&_.ant-menu-submenu-title]:!text-[15px] [&_.ant-menu-submenu-title]:!text-[#d8e4f0] [&_.ant-menu-submenu-title]:!leading-11',
@@ -148,7 +148,7 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
               ? 'px-2.5 [&_.ant-menu-item]:!mx-auto [&_.ant-menu-item]:!grid [&_.ant-menu-item]:!w-12 [&_.ant-menu-item]:!place-items-center [&_.ant-menu-item]:!px-0 [&_.ant-menu-item-selected]:!shadow-[0_8px_16px_rgb(10_111_131_/_22%)] [&_.ant-menu-submenu-title]:!mx-auto [&_.ant-menu-submenu-title]:!grid [&_.ant-menu-submenu-title]:!w-12 [&_.ant-menu-submenu-title]:!place-items-center [&_.ant-menu-submenu-title]:!px-0'
               : '',
           ].join(' ')}
-          defaultOpenKeys={['system-management']}
+          defaultOpenKeys={['react-learning', 'system-management']}
           mode="inline"
           theme="dark"
           items={menuItems}
@@ -206,12 +206,12 @@ export function MainLayout({ collapsed, onToggleCollapsed }: MainLayoutProps) {
           title="工作台导航"
           open={mobileNavigationOpen}
           placement="left"
-          width={280}
+          size={280}
           onClose={() => setMobileNavigationOpen(false)}
         >
           <Menu
             className={menuClassName}
-            defaultOpenKeys={['system-management']}
+            defaultOpenKeys={['react-learning', 'system-management']}
             mode="inline"
             theme="dark"
             items={menuItems}
